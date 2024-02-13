@@ -1,58 +1,142 @@
 <template>
-  <div class="hello">
-    <h1>{{ msg }}</h1>
-    <p>
-      For a guide and recipes on how to configure / customize this project,<br>
-      check out the
-      <a href="https://cli.vuejs.org" target="_blank" rel="noopener">vue-cli documentation</a>.
-    </p>
-    <h3>Installed CLI Plugins</h3>
-    <ul>
-      <li><a href="https://github.com/vuejs/vue-cli/tree/dev/packages/%40vue/cli-plugin-babel" target="_blank" rel="noopener">babel</a></li>
-      <li><a href="https://github.com/vuejs/vue-cli/tree/dev/packages/%40vue/cli-plugin-eslint" target="_blank" rel="noopener">eslint</a></li>
-    </ul>
-    <h3>Essential Links</h3>
-    <ul>
-      <li><a href="https://vuejs.org" target="_blank" rel="noopener">Core Docs</a></li>
-      <li><a href="https://forum.vuejs.org" target="_blank" rel="noopener">Forum</a></li>
-      <li><a href="https://chat.vuejs.org" target="_blank" rel="noopener">Community Chat</a></li>
-      <li><a href="https://twitter.com/vuejs" target="_blank" rel="noopener">Twitter</a></li>
-      <li><a href="https://news.vuejs.org" target="_blank" rel="noopener">News</a></li>
-    </ul>
-    <h3>Ecosystem</h3>
-    <ul>
-      <li><a href="https://router.vuejs.org" target="_blank" rel="noopener">vue-router</a></li>
-      <li><a href="https://vuex.vuejs.org" target="_blank" rel="noopener">vuex</a></li>
-      <li><a href="https://github.com/vuejs/vue-devtools#vue-devtools" target="_blank" rel="noopener">vue-devtools</a></li>
-      <li><a href="https://vue-loader.vuejs.org" target="_blank" rel="noopener">vue-loader</a></li>
-      <li><a href="https://github.com/vuejs/awesome-vue" target="_blank" rel="noopener">awesome-vue</a></li>
-    </ul>
+  <div class="login-register">
+    <div class="background-image"></div>
+    <div class="loginregister-container">
+      <div class="login">
+        <h2 class="white-text">Login</h2>
+        <form>
+          <input v-model="loginUsername" type="text" placeholder="Username" class="black-textbox" />
+          <input v-model="loginPassword" type="password" placeholder="Password" class="black-textbox" />
+          <button class="black-button" @click.prevent="login">Login</button>
+        </form>
+      </div>
+    </div>
+    <div class="loginregister-container">
+      <div class="register">
+        <h2 class="white-text">Register</h2>
+        <form>
+          <input v-model="username" type="text" placeholder="Username" class="black-textbox" />
+          <input v-model="email" type="email" placeholder="Email" class="black-textbox" />
+          <input v-model="password" type="password" placeholder="Password" class="black-textbox" />
+          <button class="black-button" @click.prevent="register">Register</button>
+        </form>
+      </div>
+    </div>
   </div>
 </template>
 
+<style scoped>
+.login-register {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  background-color: transparent;
+  overflow: hidden;
+}
+
+.background-image {
+  background-image: url('../assets/jim.png');
+  background-size: cover;
+  background-repeat: no-repeat;
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: -1;
+}
+
+.loginregister-container {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin: 0 7.5%;
+}
+
+.login,
+.register {
+  background-color: rgba(26, 23, 23, 0.9);
+  padding: 20px;
+  border-radius: 5px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+  height: 300px;
+  width: 50%;
+  opacity: 0.8;
+}
+
+h2 {
+  text-align: center;
+  margin-bottom: 20px;
+  color: #ffffff;
+}
+
+form {
+  display: flex;
+  flex-direction: column;
+}
+
+input {
+  margin-bottom: 10px;
+  padding: 10px;
+  border: 1px solid #000000;
+  border-radius: 5px;
+  color: #ffffff; /* Updated color to white */
+  background-color: #000000; /* Updated background color to black */
+}
+
+button {
+  padding: 10px;
+  background-color: #000000; /* Updated background color to black */
+  color: #ffffff; /* Updated color to white */
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+</style>
+
 <script>
+import axios from 'axios';
 export default {
   name: 'HelloWorld',
   props: {
     msg: String
+  },
+  data() {
+    return {
+      username: '',
+      email: '',
+      password: '',
+      loginUsername: '',
+      loginPassword: ''
+    };
+  },
+  methods: {
+    async register() {
+      try {
+        const response = await axios.post('http://172.21.252.217:3000/register', {
+          name: this.username,
+          email: this.email,
+          password: this.password
+        });
+        console.log(response.data)
+      } catch (error) {
+        console.log('An error occurred during registration:', error);
+      }
+    },
+    async login() {
+      try {
+        const response = await axios.post('http://172.21.252.217:3000/login', {
+          name: this.loginUsername,
+          password: this.loginPassword
+        });
+        console.log(response.data)
+      } catch (error) {
+        console.log('An error occurred during login:', error);
+      }
+    }
   }
 }
 </script>
-
-<!-- Add "scoped" attribute to limit CSS to this component only -->
-<style scoped>
-h3 {
-  margin: 40px 0 0;
-}
-ul {
-  list-style-type: none;
-  padding: 0;
-}
-li {
-  display: inline-block;
-  margin: 0 10px;
-}
-a {
-  color: #42b983;
-}
-</style>
