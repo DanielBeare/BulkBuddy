@@ -31,7 +31,7 @@
   justify-content: center;
   align-items: center;
   height: 100vh;
-  background-color: transparent;
+  background-color: #f2f2f2; /* Updated background color to light gray */
   overflow: hidden;
 }
 
@@ -57,7 +57,7 @@
 
 .login,
 .register {
-  background-color: rgba(26, 23, 23, 0.9);
+  background-color: #ffffff; /* Updated background color to white */
   padding: 20px;
   border-radius: 5px;
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
@@ -69,7 +69,8 @@
 h2 {
   text-align: center;
   margin-bottom: 20px;
-  color: #ffffff;
+  color: #000000; /* Updated color to black */
+  font-family: 'Arial', sans-serif; /* Added font family */
 }
 
 form {
@@ -82,8 +83,8 @@ input {
   padding: 10px;
   border: 1px solid #000000;
   border-radius: 5px;
-  color: #ffffff; /* Updated color to white */
-  background-color: #000000; /* Updated background color to black */
+  color: #000000; /* Updated color to black */
+  background-color: #ffffff; /* Updated background color to white */
 }
 
 button {
@@ -93,6 +94,9 @@ button {
   border: none;
   border-radius: 5px;
   cursor: pointer;
+  font-family: 'Arial', sans-serif; /* Added font family */
+  font-weight: bold; /* Added font weight */
+  text-transform: uppercase; /* Added text transform */
 }
 
 </style>
