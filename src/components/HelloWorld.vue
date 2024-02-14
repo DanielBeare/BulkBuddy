@@ -124,7 +124,7 @@ export default {
           email: this.email,
           password: this.password
         });
-        console.log(response.data)
+        console.log(response)
       } catch (error) {
         console.log('An error occurred during registration:', error);
       }
@@ -135,7 +135,9 @@ export default {
           name: this.loginUsername,
           password: this.loginPassword
         });
-        console.log(response.data)
+        console.log(response)
+        localStorage.setItem("username", this.loginUsername);
+        this.$router.push('/mainmenu');
       } catch (error) {
         console.log('An error occurred during login:', error);
       }
