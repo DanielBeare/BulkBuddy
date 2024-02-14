@@ -36,7 +36,6 @@
 }
 
 .background-image {
-  background-image: url('../assets/jim.png');
   background-size: cover;
   background-repeat: no-repeat;
   position: absolute;
