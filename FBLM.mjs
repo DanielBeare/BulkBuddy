@@ -1,5 +1,5 @@
 import { db } from "./src/fireBase/FB.mjs";
-import { collection, addDoc, getDocs , query, where, doc,getDoc,setDoc} from "@firebase/firestore";
+import { collection, addDoc, getDocs , query, where, doc, getDoc,setDoc} from "@firebase/firestore";
 import express from 'express';
 import cors from 'cors';
 import bodyParser from 'body-parser';
@@ -55,17 +55,17 @@ app.post('/login', async (req, res) => {
 
 
 app.post('/register', async (req, res) => {
+    console.log('attempting to register')
     try {
         const { name, email, password } = req.body;
-        const querySnapshot = await getDoc(query(collection(db, "Users"), where("name", "==", name)));
-        if (!querySnapshot.empty) {
+        const userQuerySnapshot = await getDocs(query(collection(db, "Users"), where("name", "==", name)));
+        
+        if (!userQuerySnapshot.empty) {
             console.log('User already exists');
             res.status(409).send('User already exists');
             return;
         }
-        else{
-            console.log('User does not exist');
-        }
+        
         await addDoc(collection(db, "Users"), { name, email, password });
         console.log('User saved successfully:', { name, email, password });
         res.status(201).send();
@@ -76,6 +76,7 @@ app.post('/register', async (req, res) => {
 });
 
 app.post('/add', async (req, res) => {
+    console.log('attempting to add food')
     try {
         const { protein, carbs, fats, calories, date, user } = req.body;
         const docRef = doc(collection(db, "nutriTracker"), `${user}_${date}`);

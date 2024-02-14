@@ -45,7 +45,7 @@ export default {
     methods: {
         async addMeal() {
             try {
-                const response = await axios.post('http://172.21.252.217:3000/add',{
+                const response = await axios.post('http://192.168.0.146:3000/add',{
                     protein: this.protein,
                     carbs: this.carbs,
                     fats: this.fats,
