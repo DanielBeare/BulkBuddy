@@ -1,7 +1,11 @@
 <template>
-  <p>Home Component</p>
-  <div> 
-    <RouterView />
+  <div>
+    <header style="background-color: black; color: white; padding: 20px;">
+      <h1>BulkBuddy</h1>
+    </header>
+    <div> 
+      <RouterView />
+    </div>
   </div>
 </template>
 
