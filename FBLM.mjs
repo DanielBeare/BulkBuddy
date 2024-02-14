@@ -1,5 +1,5 @@
 import { db } from "./src/fireBase/FB.mjs";
-import { collection, addDoc, getDocs , query, where, doc, getDoc,setDoc} from "@firebase/firestore";
+import { collection, addDoc, getDocs , query, where, doc, getDoc,setDoc, serverTimestamp } from "@firebase/firestore";
 import express from 'express';
 import cors from 'cors';
 import bodyParser from 'body-parser';
@@ -66,7 +66,7 @@ app.post('/register', async (req, res) => {
             return;
         }
         
-        await addDoc(collection(db, "Users"), { name, email, password });
+        await setDoc(doc(collection(db, "Users"), `${name}`), { name, email, password });
         console.log('User saved successfully:', { name, email, password });
         res.status(201).send();
     } catch (error) {
@@ -75,37 +75,46 @@ app.post('/register', async (req, res) => {
     }
 });
 
+
 app.post('/add', async (req, res) => {
-    console.log('attempting to add food')
+    console.log('attempting to add food');
     try {
-        const { protein, carbs, fats, calories, date, user } = req.body;
-        const docRef = doc(collection(db, "nutriTracker"), `${user}_${date}`);
-        const docSnapshot = await getDoc(docRef);
+        const { protein, carbs, fats, calories, user } = req.body;
+        console.log('Received request with user ID:', user);
 
-        if (docSnapshot.exists()) {
-            const existingData = docSnapshot.data();
-            const updatedData = {
-                protein: parseInt(existingData.protein) + parseInt(protein),
-                carbs: parseInt(existingData.carbs) + parseInt(carbs),
-                fats: parseInt(existingData.fats) + parseInt(fats),
-                calories: parseInt(existingData.calories) + parseInt(calories),
-                date: existingData.date,
-                user: existingData.user
-            };
-            await setDoc(docRef, updatedData);
-            console.log('Food updated successfully:', updatedData);
-        }
-         else {
-            await setDoc(docRef, { protein, carbs, fats, calories, date, user });
-            console.log('Food saved successfully:', { protein, carbs, fats, calories, date, user });
+        const currentDate = new Date();
+        const currentDay = currentDate.toISOString().split('T')[0];
+
+        const loggedDaysCollectionRef = collection(db, `Users/${user}/LoggedDays`);
+        const loggedDayDocRef = doc(loggedDaysCollectionRef, currentDay);
+        const loggedDayDocSnapshot = await getDoc(loggedDayDocRef);
+
+        if (!loggedDayDocSnapshot.exists()) {
+            await setDoc(loggedDayDocRef, { meals: {} }, { merge: true });
         }
 
+        const mealsCollectionRef = collection(loggedDayDocRef, 'meals');
+        const mealsSnapshot = await getDocs(mealsCollectionRef);
+
+        const mealName = `meal${mealsSnapshot.size + 1}`;
+
+        await setDoc(doc(mealsCollectionRef, mealName), {
+            protein: parseInt(protein),
+            carbs: parseInt(carbs),
+            fats: parseInt(fats),
+            calories: parseInt(calories)
+        });
+
+        console.log('Food saved successfully for the meal:', mealName);
         res.status(201).send();
     } catch (error) {
         console.error('Error saving food:', error.message);
         res.status(500).send('Error saving food');
     }
 });
+
+
+
 
 
 app.listen(3000, () => console.log('Server started on port 3000'));
