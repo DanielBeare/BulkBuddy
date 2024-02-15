@@ -116,6 +116,11 @@ export default {
       loginPassword: ''
     };
   },
+  mounted() {
+    if (localStorage.getItem("username")) {
+      this.$router.push('/mainmenu');
+    }
+  },
   methods: {
     async register() {
       try {
@@ -125,6 +130,9 @@ export default {
           password: this.password
         });
         console.log(response)
+        localStorage.setItem("username", this.username);
+
+        this.$router.push('/mainmenu');
       } catch (error) {
         console.log('An error occurred during registration:', error);
       }

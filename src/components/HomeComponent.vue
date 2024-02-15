@@ -21,20 +21,32 @@
                             <label class="input-label" for="calories">Calories:</label>
                             <input class="input-field" type="text" id="calories" v-model="calories">
 
-                            <label class="input-label" for="meaml">Meal description:</label>
+                            <label class="input-label" for="mealdisc">Meal description:</label>
                             <input class="input-field" type="text" id="mealdisc" v-model="mealdisc">
 
                             <button class="add-meal-button" @click="addMeal">Add Meal</button>
                         </div>
                     </div>
                 </div>
+                <div class="meal-list" ref="mealList">
+            <ul>
+                <li v-for="meal in meals" :key="meal.id + meal.mealdisc" class="meal-item" @click="scrollToMeal(meal)">
+                    {{ meal.mealno }}
+                </li>
+            </ul>
+        </div>
             </div>
         </transition>
+    </div>
+    <div class="meal-container">
         
-        <div class="meal-list" ref="mealList" style="padding: 10px; height: 100%;">
-            <ul>
-                <li v-for="meal in meals" :key="meal.id" class="meal-item">{{ meal.mealno }}</li>
-            </ul>
+        <div class="meal-details" v-if="selectedMeal">
+            <h3>{{ selectedMeal.mealno }}</h3>
+            <p>Meal Description: {{ selectedMeal.mealdisc }}</p>
+            <p>Calories: {{ selectedMeal.calories }}</p>
+            <p>Fats: {{ selectedMeal.fats }}</p>
+            <p>Carbs: {{ selectedMeal.carbs }}</p>
+            <p>Protein: {{ selectedMeal.protein }}</p>
         </div>
     </div>
 </template>
@@ -55,6 +67,8 @@ export default {
             currentUser: localStorage.getItem("username"),
             showInputFields: false,
             meals: [],
+            selectedMeal: null,
+            mealListHeight: 'auto',
         };
     },
     mounted() {
@@ -69,7 +83,8 @@ export default {
                     fats: this.fats,
                     calories: this.calories,
                     date: this.currentDate,
-                    user: this.currentUser
+                    user: this.currentUser,
+                    mealdisc: this.mealdisc
                 });
                 console.log(response);
                 this.readTodaysMeals();
@@ -78,34 +93,68 @@ export default {
             }
         },
         async readTodaysMeals(){
-            try{
-                const response = await axios.post('http://172.21.252.217:3000/readmeals',{
-                    user: this.currentUser,
-                    date: this.currentDate
-                });
-                this.meals = response.data;
-                this.updateMealListHeight();
-            }
-            catch (error) {
-                console.log('An error occurred during reading:', error);
-            }
-        },
+    try{
+        const response = await axios.post('http://172.21.252.217:3000/readmeals',{
+            user: this.currentUser,
+            date: this.currentDate
+        });
+        this.meals = response.data;
+        console.log("attempting to read meals"+this.meals);
+        this.updateMealListHeight();
+    }
+    catch (error) {
+        console.log('An error occurred during reading:', error);
+    }
+},
         toggleInputFields() {
-            this.showInputFields = !this.showInputFields;
-            if (this.showInputFields) {
+            if (!this.showInputFields) {
+                // Show input fields
+                this.showInputFields = true;
                 this.$nextTick(() => {
-                    this.$refs.inputFields.style.height = `${this.$refs.inputFields.scrollHeight}px`;
-                    this.loginHeight = `${this.$refs.inputFields.scrollHeight + 100}px`; // adjust the login div height
+                    const inputFields = document.querySelector('.input-fields');
+                    const loginContainer = document.querySelector('.login');
+                    if (inputFields && loginContainer) {
+                        const inputHeight = inputFields.scrollHeight;
+                        inputFields.style.transition = 'height 0.3s ease';
+                        inputFields.style.height = `${inputHeight}px`;
+                        loginContainer.style.height = `${inputHeight + 100}px`;
+                    }
                 });
             } else {
-                this.$refs.inputFields.style.height = '0';
-                this.loginHeight = '300px'; // reset the login div height
+                // Hide input fields
+                const originalLoginHeight = parseInt(this.loginHeight);
+                if (originalLoginHeight === 300) {
+                    // No need to retract if input fields are already hidden
+                    return;
+                }
+                const inputFields = document.querySelector('.input-fields');
+                const loginContainer = document.querySelector('.login');
+                if (inputFields && loginContainer) {
+                    inputFields.style.transition = 'height 0.3s ease';
+                    inputFields.style.height = '0';
+                    setTimeout(() => {
+                        this.showInputFields = false;
+                        loginContainer.style.height = '300px'; // reset the login div height
+                    }, 300);
+                }
             }
         },
         updateMealListHeight() {
             this.$nextTick(() => {
-                this.$refs.mealList.style.height = `${this.$refs.mealList.scrollHeight}px`;
+                const mealList = this.$refs.mealList;
+                const mealItems = mealList.querySelectorAll('.meal-item');
+                const totalHeight = Array.from(mealItems).reduce((acc, item) => acc + item.offsetHeight, 0);
+                mealList.style.transition = 'height 0.3s ease';
+                mealList.style.height = `${totalHeight}px`;
+                this.mealListHeight = `${totalHeight}px`;
             });
+        },
+        scrollToMeal(meal) {
+            this.selectedMeal = meal;
+            const mealDetails = document.querySelector('.meal-details');
+            if (mealDetails) {
+                mealDetails.scrollIntoView({ behavior: 'smooth' });
+            }
         }
     },
 };
@@ -136,6 +185,8 @@ export default {
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
     width: 50%;
     opacity: 0.8;
+    margin-bottom: 20px; /* Added margin to prevent touching */
+    margin: 10px;
 }
 
 .add-food-button {
@@ -190,20 +241,50 @@ export default {
     text-transform: uppercase;
 }
 
+.meal-container {
+    display: flex;
+}
+
 .meal-list {
     background-color: #ffffff;
-    padding: 15px;
+    padding: 5px;
     border-radius: 5px;
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
-    height: auto;
+    height: 0;
     width: 50%;
     opacity: 0.8;
-    overflow-y: auto;
+    margin-bottom: 20px; /* Added margin to prevent touching */
+    margin:5px;
 }
 
 .meal-item {
     font-family: 'Arial', sans-serif;
     font-weight: bold;
+    margin: 5px;
+    cursor: pointer;
+}
+
+.meal-details {
+    background-color: #ffffff;
+    padding: 15px;
+    border-radius: 5px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+    width: 50%;
+    opacity: 0.8;
+    margin-top: 20px;
+    align-items: center;
+    justify-content: center;
+}
+
+.meal-details h3 {
+    font-family: 'Arial', sans-serif;
+    font-weight: bold;
+    margin-bottom: 10px;
+}
+
+.meal-details p {
+    font-family: 'Arial', sans-serif;
     margin-bottom: 5px;
 }
+
 </style>

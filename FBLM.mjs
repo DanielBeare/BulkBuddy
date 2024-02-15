@@ -33,28 +33,32 @@ async function findDocument() {
     }}
 
 
-app.post('/readmeals', async (req, res) => {
-    console.log('attempting to read meals');
-    try {
-        const { user, date } = req.body;
-
-        const querySnapshot = await getDocs(query(collection(db, "Users", user, "LoggedDays", date, "meals")));
-        if (querySnapshot.empty) {
-            console.log('No matching documents.');
-            res.status(401).send('No meals found');
-        } else {
-            const mealsData = [];
-            querySnapshot.forEach((doc) => {
-                console.log('Meals found:', doc.data());
-                mealsData.push(doc.data());
-            });
-            res.status(200).send(mealsData);
+    app.post('/readmeals', async (req, res) => {
+        console.log('attempting to read meals');
+        try {
+            const { user, date } = req.body;
+            console.log('User:', user);
+            console.log('Date:', date);
+    
+            const querySnapshot = await getDocs(query(collection(db, "Users", user, "LoggedDays", date, "meals")));
+            if (querySnapshot.empty) {
+                console.log('No matching documents.');
+                res.status(401).send('No meals found');
+            } else {
+                const mealsData = [];
+                querySnapshot.forEach((doc) => {
+                    const meal = doc.data();
+                    console.log('Meal found:', meal);
+                    mealsData.push(meal);
+                });
+                console.log('Sending mealsData:', mealsData);
+                res.status(200).send(mealsData);
+            }
+        } catch (error) {
+            console.error('Error reading meals:', error.message);
+            res.status(500).send('Error reading meals');
         }
-    } catch (error) {
-        console.error('Error reading meals:', error.message);
-        res.status(500).send('Error reading meals');
-    }
-});
+    });
 
 app.post('/login', async (req, res) => {
     try {
@@ -103,7 +107,7 @@ app.post('/register', async (req, res) => {
 app.post('/add', async (req, res) => {
     console.log('attempting to add food');
     try {
-        const { protein, carbs, fats, calories, user } = req.body;
+        const { protein, carbs, fats, calories, user, mealdisc } = req.body;
         console.log('Received request with user ID:', user);
 
         const currentDate = new Date();
@@ -127,7 +131,8 @@ app.post('/add', async (req, res) => {
             carbs: parseInt(carbs),
             fats: parseInt(fats),
             calories: parseInt(calories),
-            mealno: mealName
+            mealno: mealName,
+            mealdisc : mealdisc
         });
 
         console.log('Food saved successfully for the meal:', mealName);
