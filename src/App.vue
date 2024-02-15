@@ -3,7 +3,7 @@
     <header style="text-align: center; margin-bottom: 20px; color: #000000; font-family: 'Arial', sans-serif;">
       <h1 style="font-size: 48px;">BulkBuddy</h1>
       <div style="display: flex; justify-content: flex-end;">
-        <span v-if="isLoggedIn" style="margin-right: 10px; font-size: 24px;">{{ username }}</span>
+        <span v-if="isLoggedIn" style="margin-right: 10px; font-size: 24px;">User: {{ username }}  </span>
         <button v-if="isLoggedIn" @click="logout">Logout</button>
       </div>
     </header>
@@ -22,12 +22,10 @@ export default {
     RouterView
   },
   mounted() {
-    // Check if user is logged in
     this.isLoggedIn = localStorage.getItem('username') !== null;
     if (this.isLoggedIn) {
       this.username = localStorage.getItem('username');
     } else {
-      // Redirect the user to /loginregister if not logged in and accessing other routes
       if (this.$route.path !== '/loginregister') {
         this.$router.push('/loginregister');
       }
@@ -35,12 +33,10 @@ export default {
   },
   methods: {
     logout() {
-      // Clear the username from local storage and log out the user
       localStorage.removeItem('username');
       this.isLoggedIn = false;
       this.username = '';
 
-      // Redirect the user to /loginregister
       this.$router.push('/loginregister');
     }
   },
@@ -52,12 +48,10 @@ export default {
   },
   watch: {
     $route(to) {
-      // Check if user is logged in
       this.isLoggedIn = localStorage.getItem('username') !== null;
       if (this.isLoggedIn) {
         this.username = localStorage.getItem('username');
       } else {
-        // Redirect the user to /loginregister if not logged in and accessing other routes
         if (to.path !== '/loginregister') {
           this.$router.push('/loginregister');
         }

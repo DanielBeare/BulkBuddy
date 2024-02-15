@@ -44,14 +44,29 @@ async function findDocument() {
                 console.log('No matching documents.');
                 res.status(401).send('No meals found');
             } else {
+                let carbsTotal = 0;
+                let fatsTotal = 0;
+                let caloriesTotal = 0;
+                let proteinTotal = 0;
                 const mealsData = [];
                 querySnapshot.forEach((doc) => {
                     const meal = doc.data();
                     console.log('Meal found:', meal);
                     mealsData.push(meal);
+                    carbsTotal += meal.carbs;
+                    fatsTotal += meal.fats;
+                    caloriesTotal += meal.calories;
+                    proteinTotal += meal.protein;
                 });
+                const totals = {
+                    carbsTotal,
+                    fatsTotal,
+                    caloriesTotal,
+                    proteinTotal
+                };
                 console.log('Sending mealsData:', mealsData);
-                res.status(200).send(mealsData);
+                console.log('Totals:', totals);
+                res.status(200).send({ mealsData ,totals});
             }
         } catch (error) {
             console.error('Error reading meals:', error.message);
