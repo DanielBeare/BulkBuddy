@@ -39,7 +39,6 @@ async function findDocument() {
             const { user, date } = req.body;
             console.log('User:', user);
             console.log('Date:', date);
-    
             const querySnapshot = await getDocs(query(collection(db, "Users", user, "LoggedDays", date, "meals")));
             if (querySnapshot.empty) {
                 console.log('No matching documents.');

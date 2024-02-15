@@ -5,7 +5,7 @@
             <div class="loginregister-container">
                 <div class="login" :style="{ height: loginHeight }">
                     <button class="add-food-button" @click="toggleInputFields">
-                        {{ showInputFields ? 'Cancel' : 'Add Food' }}
+                        {{ showInputFields ? 'Cancel' : `Add Meal ${meals.length + 1}` }}
                     </button>
                     <div class="input-fields-container">
                         <div v-if="showInputFields" class="input-fields" ref="inputFields">
@@ -29,17 +29,16 @@
                     </div>
                 </div>
                 <div class="meal-list" ref="mealList">
-            <ul>
-                <li v-for="meal in meals" :key="meal.id + meal.mealdisc" class="meal-item" @click="scrollToMeal(meal)">
-                    {{ meal.mealno }}
-                </li>
-            </ul>
-        </div>
+                    <ul>
+                        <li v-for="meal in meals" :key="meal.id + meal.mealdisc" class="meal-item" @click="scrollToMeal(meal)">
+                            {{ meal.mealno }}
+                        </li>
+                    </ul>
+                </div>
             </div>
         </transition>
     </div>
     <div class="meal-container">
-        
         <div class="meal-details" v-if="selectedMeal">
             <h3>{{ selectedMeal.mealno }}</h3>
             <p>Meal Description: {{ selectedMeal.mealdisc }}</p>
@@ -69,6 +68,7 @@ export default {
             meals: [],
             selectedMeal: null,
             mealListHeight: 'auto',
+            loginHeight: undefined
         };
     },
     mounted() {
@@ -77,7 +77,7 @@ export default {
     methods: {
         async addMeal() {
             try {
-                const response = await axios.post('http://172.21.252.217:3000/add', {
+                const response = await axios.post('http://192.168.0.146:3000/add', {
                     protein: this.protein,
                     carbs: this.carbs,
                     fats: this.fats,
@@ -94,7 +94,7 @@ export default {
         },
         async readTodaysMeals(){
     try{
-        const response = await axios.post('http://172.21.252.217:3000/readmeals',{
+        const response = await axios.post('http://192.168.0.146:3000/readmeals',{
             user: this.currentUser,
             date: this.currentDate
         });
@@ -107,6 +107,7 @@ export default {
     }
 },
         toggleInputFields() {
+            console.log('toggleInputFields');
             if (!this.showInputFields) {
                 // Show input fields
                 this.showInputFields = true;
@@ -168,6 +169,7 @@ export default {
     height: 100dvh;
     background-color: #f2f2f2;
     overflow: hidden;
+    flex-wrap: wrap;
 }
 
 .loginregister-container {
@@ -251,10 +253,13 @@ export default {
     border-radius: 5px;
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
     height: 0;
-    width: 50%;
+    padding-right: 30px;
     opacity: 0.8;
     margin-bottom: 20px; /* Added margin to prevent touching */
     margin:5px;
+    text-align: left;
+    overflow: hidden;
+    text-wrap: wrap;
 }
 
 .meal-item {
@@ -262,6 +267,7 @@ export default {
     font-weight: bold;
     margin: 5px;
     cursor: pointer;
+    padding-bottom: 20px;
 }
 
 .meal-details {
@@ -272,7 +278,7 @@ export default {
     width: 50%;
     opacity: 0.8;
     margin-top: 20px;
-    align-items: center;
+    align-items: left;
     justify-content: center;
 }
 
@@ -284,7 +290,7 @@ export default {
 
 .meal-details p {
     font-family: 'Arial', sans-serif;
-    margin-bottom: 5px;
+    margin-bottom: 10px;
 }
 
 </style>

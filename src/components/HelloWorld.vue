@@ -124,7 +124,7 @@ export default {
   methods: {
     async register() {
       try {
-        const response = await axios.post('http://172.21.252.217:3000/register', {
+        const response = await axios.post('http://192.168.0.146:3000/register', {
           name: this.username,
           email: this.email,
           password: this.password
@@ -139,7 +139,7 @@ export default {
     },
     async login() {
       try {
-        const response = await axios.post('http://172.21.252.217:3000/login', {
+        const response = await axios.post('http://192.168.0.146:3000/login', {
           name: this.loginUsername,
           password: this.loginPassword
         });
