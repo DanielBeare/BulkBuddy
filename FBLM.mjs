@@ -32,6 +32,30 @@ async function findDocument() {
         console.error("Error finding document: ", e);
     }}
 
+
+app.post('/readmeals', async (req, res) => {
+    console.log('attempting to read meals');
+    try {
+        const { user, date } = req.body;
+
+        const querySnapshot = await getDocs(query(collection(db, "Users", user, "LoggedDays", date, "meals")));
+        if (querySnapshot.empty) {
+            console.log('No matching documents.');
+            res.status(401).send('No meals found');
+        } else {
+            const mealsData = [];
+            querySnapshot.forEach((doc) => {
+                console.log('Meals found:', doc.data());
+                mealsData.push(doc.data());
+            });
+            res.status(200).send(mealsData);
+        }
+    } catch (error) {
+        console.error('Error reading meals:', error.message);
+        res.status(500).send('Error reading meals');
+    }
+});
+
 app.post('/login', async (req, res) => {
     try {
         console.log('attempting login')
@@ -102,7 +126,8 @@ app.post('/add', async (req, res) => {
             protein: parseInt(protein),
             carbs: parseInt(carbs),
             fats: parseInt(fats),
-            calories: parseInt(calories)
+            calories: parseInt(calories),
+            mealno: mealName
         });
 
         console.log('Food saved successfully for the meal:', mealName);
