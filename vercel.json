@@ -19,10 +19,16 @@
         "dest": "/api/FBLM.mjs"
       },
       {
+        "src": "/loginregister",
+        "dest": "/dist/loginregister.html"
+      },
+      {
+        "src": "/loginregister/(.*)",
+        "dest": "/dist/loginregister/$1"
+      },
+      {
         "src": "/(.*)",
-        "dest": "/dist/$1",
-        "continue": true
+        "dest": "/dist/$1"
       }
     ]
-    
   }
