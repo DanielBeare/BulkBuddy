@@ -16,7 +16,7 @@
     "routes": [
       {
         "src": "/api/(.*)",
-        "dest": "./api/FBLM.mjs"
+        "dest": "/api/FBLM.mjs"
       },
       {
         "src": "/loginregister",
