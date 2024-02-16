@@ -8,21 +8,21 @@
           <div class="input-fields-container">
             <div v-if="showInputFields" class="input-fields" ref="inputFields">
               <label class="input-label" for="protein">Protein:</label>
-              <input class="input-field" type="text" id="protein" v-model="protein">
-  
+              <input class="input-field" type="number" id="protein" v-model.number="protein" required>
+
               <label class="input-label" for="carbs">Carbs:</label>
-              <input class="input-field" type="text" id="carbs" v-model="carbs">
-  
+              <input class="input-field" type="number" id="carbs" v-model.number="carbs" required>
+
               <label class="input-label" for="fats">Fats:</label>
-              <input class="input-field" type="text" id="fats" v-model="fats">
-  
+              <input class="input-field" type="number" id="fats" v-model.number="fats" required>
+
               <label class="input-label" for="calories">Calories:</label>
-              <input class="input-field" type="text" id="calories" v-model="calories">
-  
+              <input class="input-field" type="number" id="calories" v-model.number="calories" required>
+
               <label class="input-label" for="mealdisc">Meal description:</label>
-              <input class="input-field" type="text" id="mealdisc" v-model="mealdisc">
-  
-              <button class="add-meal-button" @click="addMeal">Add Meal</button>
+              <input class="input-field" type="text" id="mealdisc" v-model="mealdisc" required>
+
+              <button class="add-meal-button" @click="checkinputs">Add Meal</button>
             </div>
           </div>
         </div>
@@ -87,9 +87,22 @@
       this.readTodaysMeals();
     },
     methods: {
+      checkinputs(){
+        if(this.mealdisc == '' || this.protein == '' || this.carbs == '' || this.fats == '' || this.calories == ''){
+          return;
+        }
+        this.addMeal();
+      },
+      cleartb(){
+        this.mealdisc = '';
+        this.protein = '';
+        this.carbs = '';
+        this.fats = '';
+        this.calories = '';
+      },
       async addMeal() {
         try {
-          const response = await axios.post('http://192.168.0.146:3000/add', {
+          const response = await axios.post('http://172.21.252.217:3000/add', {
             protein: this.protein,
             carbs: this.carbs,
             fats: this.fats,
@@ -101,13 +114,14 @@
           console.log(response);
           this.readTodaysMeals();
           this.toggleInputFields();
+          this.cleartb();
         } catch (error) {
           console.log('An error occurred during registration:', error);
         }
       },
       async readTodaysMeals() {
         try {
-          const response = await axios.post('http://192.168.0.146:3000/readmeals', {
+          const response = await axios.post('http://172.21.252.217:3000/readmeals', {
             user: this.currentUser,
             date: this.currentDate
           });
@@ -154,16 +168,19 @@
         }
       },
     updateMealListHeight() {
-        this.$nextTick(() => {
-            const mealList = this.$refs.mealList;
-            const mealItems = mealList.querySelectorAll('.meal-item');
-            const totalHeight = Array.from(mealItems).reduce((acc, item) => acc + item.offsetHeight, 0);
-            const maxHeight = window.innerHeight - mealList.offsetTop - 20; // Adjust the offset and padding as needed
-            const finalHeight = Math.min(totalHeight, maxHeight);
-            mealList.style.transition = 'height 0.3s ease';
-            mealList.style.height = `${finalHeight}px`;
-            this.mealListHeight = `${finalHeight}px`;
+      this.$nextTick(() => {
+        const mealList = this.$refs.mealList;
+        const mealItems = mealList.querySelectorAll('.meal-item');
+        let totalHeight = 0;
+        mealItems.forEach((item) => {
+          totalHeight += item.offsetHeight;
         });
+        const maxHeight = window.innerHeight - mealList.offsetTop + 50;
+        const finalHeight = Math.min(totalHeight, maxHeight);
+        mealList.style.transition = 'height 0.3s ease';
+        mealList.style.height = `${finalHeight}px`;
+        this.mealListHeight = `${finalHeight}px`;
+      });
     },
       scrollToMeal(meal) {
         this.selectedMeal = meal;
@@ -258,7 +275,7 @@
     padding-right: 30px;
     opacity: 0.8;
     text-align: left;
-    overflow: scroll;
+    overflow: hidden;
   }
   
   .meal-item {

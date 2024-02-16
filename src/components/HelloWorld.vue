@@ -7,7 +7,7 @@
         <form>
           <input v-model="loginUsername" type="text" placeholder="Username" class="black-textbox" />
           <input v-model="loginPassword" type="password" placeholder="Password" class="black-textbox" />
-          <button class="black-button" @click.prevent="login">Login</button>
+          <button class="black-button" @click.prevent="verifylogin">Login</button>
         </form>
       </div>
     </div>
@@ -18,7 +18,7 @@
           <input v-model="username" type="text" placeholder="Username" class="black-textbox" />
           <input v-model="email" type="email" placeholder="Email" class="black-textbox" />
           <input v-model="password" type="password" placeholder="Password" class="black-textbox" />
-          <button class="black-button" @click.prevent="register">Register</button>
+          <button class="black-button" @click.prevent="verifyregister">Register</button>
         </form>
       </div>
     </div>
@@ -121,10 +121,25 @@ export default {
       this.$router.push('/mainmenu');
     }
   },
+  
   methods: {
+    verifylogin() {
+      if (this.loginUsername === '' || this.loginPassword === '') {
+        alert('Please fill in all fields');
+      } else {
+        this.login();
+      }
+    },
+    verifyregister() {
+      if (this.username === '' || this.email === '' || this.password === '') {
+        alert('Please fill in all fields');
+      } else {
+        this.register();
+      }
+    },
     async register() {
       try {
-        const response = await axios.post('http://192.168.0.146:3000/register', {
+        const response = await axios.post('http://172.21.252.217:3000/register', {
           name: this.username,
           email: this.email,
           password: this.password
@@ -139,7 +154,7 @@ export default {
     },
     async login() {
       try {
-        const response = await axios.post('http://192.168.0.146:3000/login', {
+        const response = await axios.post('http://172.21.252.217:3000/login', {
           name: this.loginUsername,
           password: this.loginPassword
         });
