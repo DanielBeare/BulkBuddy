@@ -28,6 +28,7 @@
         </div>
       </div>
       <div class="grid-item bottom left">
+        <h2>Todays logged meals</h2>
         <div class="meal-list" ref="mealList">
           <ul>
             <li v-for="meal in meals" :key="meal.id + meal.mealdisc" class="meal-item" @click="scrollToMeal(meal)">
@@ -47,6 +48,7 @@
       </div>
       <div class="grid-item bottom-right">
         <div class="meal-details" v-if="selectedMeal">
+          <h2>Currently viewing </h2>
           <h3>{{ selectedMeal.mealno }}</h3>
           <p>Meal Description: {{ selectedMeal.mealdisc }}</p>
           <p>Calories: {{ selectedMeal.calories }}</p>
@@ -55,6 +57,23 @@
           <p>Protein: {{ selectedMeal.protein }}</p>
         </div>
       </div>
+      <div class ="grid-item bottomleft2">
+        <h2>Logged Dates</h2>
+        <div class="meal-details" ref="loggedDatesList">
+          <ul>
+            <li v-for="date in LDates" :key="date" @click = "scrollToDate(date)">{{ date }}</li>
+          </ul>
+        </div>
+    </div>
+    <div class = "grid-item bottomright2">
+      <div class="meal-details d" v-if="selectedDate">
+        <h2>Logged Totals</h2>
+        <p>Calories: {{ this.LTcalories }}</p>
+        <p>Protein: {{ this.LTprotein }}</p>
+        <p>Fats: {{ this.LTfats }}</p>
+        <p>Carbs: {{ this.LTcarbs}}</p>
+      </div>
+    </div>
     </div>
   </template>
   
@@ -74,17 +93,25 @@
         currentUser: localStorage.getItem("username"),
         showInputFields: false,
         meals: [],
+        LDates: [],
         selectedMeal: null,
+        selectedDate: null,
         mealListHeight: 'auto',
+        loggedDatesListHeight: 'auto',
         loginHeight: undefined,
         totprotein: 0,
         totcarbs: 0,
         totfats: 0,
-        totcalories: 0
+        totcalories: 0,
+        LTcalories: 0,
+        LTprotein: 0,
+        LTcarbs: 0,
+        LTfats: 0
       };
     },
     mounted() {
       this.readTodaysMeals();
+      this.readLoggedDates();
     },
     methods: {
       checkinputs(){
@@ -119,6 +146,35 @@
           console.log('An error occurred during registration:', error);
         }
       },
+      async readLoggedDates() {
+        try {
+          const response = await axios.post('http://172.21.252.217:3000/readLoggedDays', {
+            user: this.currentUser
+          });
+          this.LDates = response.data;
+          console.log(response.data)
+          this.updateLoggedDatesListHeight();
+          console.log(this.LDates);
+        } catch (error) {
+          console.log('An error occurred during reading:', error);
+        }
+      },
+      async getloggedtotals(passedDate) {
+        try {
+          const response = await axios.post('http://172.21.252.217:3000/readloggedtotals ', {
+            user: this.currentUser,
+            date: passedDate
+          });
+          console.log(response.data);
+          this.LTcalories = response.data.caloriesTotal;
+          this.LTprotein = response.data.proteinTotal;
+          this.LTcarbs = response.data.carbsTotal;
+          this.LTfats = response.data.fatsTotal;
+        } catch (error) {
+          console.log('An error occurred during reading:', error);
+        }
+      },
+
       async readTodaysMeals() {
         try {
           const response = await axios.post('http://172.21.252.217:3000/readmeals', {
@@ -167,6 +223,7 @@
           }
         }
       },
+      
     updateMealListHeight() {
       this.$nextTick(() => {
         const mealList = this.$refs.mealList;
@@ -182,12 +239,33 @@
         this.mealListHeight = `${finalHeight}px`;
       });
     },
+    updateLoggedDatesListHeight() {
+      this.$nextTick(() => {
+        const loggedDatesList = this.$refs.loggedDatesList;
+        if (!loggedDatesList) return;
+
+        const totalHeight = loggedDatesList.scrollHeight;
+        const maxHeight = window.innerHeight - loggedDatesList.offsetTop + 50;
+        const finalHeight = Math.min(totalHeight, maxHeight);
+        loggedDatesList.style.transition = 'height 0.3s ease';
+        loggedDatesList.style.height = `${finalHeight}px`;
+        this.loggedDatesListHeight = `${finalHeight}px`;
+      });
+    },
       scrollToMeal(meal) {
         this.selectedMeal = meal;
         const mealDetails = document.querySelector('.meal-details');
         if (mealDetails) {
           mealDetails.scrollIntoView({ behavior: 'smooth' });
         }
+      },
+      scrollToDate(date) {
+        this.selectedDate = date;
+        const dateDtls = document.querySelector('.meal-details d');
+        if (dateDtls) {
+          dateDtls.scrollIntoView({ behavior: 'smooth' });
+        }
+        this.getloggedtotals(date);
       }
     },
   };
@@ -200,6 +278,7 @@
     grid-template-columns: 1fr 1fr;
     gap: 20px;
     padding: 20px;
+    background-color: grey;
   }
   
   .grid-item {
@@ -226,6 +305,14 @@
   .bottom-right {
     grid-row: 2;
     grid-column: 2;
+  }
+  .bottomright2 {
+    grid-row: 3;
+    grid-column: 2;
+  }
+  .bottomleft2 {
+    grid-row: 3;
+    grid-column: 1;
   }
   
   .input-fields-container {
@@ -285,7 +372,13 @@
     cursor: pointer;
     padding-bottom: 20px;
   }
-  
+  .logged-dates {
+    font-family: 'Arial', sans-serif;
+    font-weight: bold;
+    margin: 5px;
+    cursor: pointer;
+    padding-bottom: 20px;
+  }
   .meal-details {
     padding: 15px;
     border-radius: 5px;

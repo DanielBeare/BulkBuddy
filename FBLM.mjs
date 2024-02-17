@@ -65,7 +65,6 @@ async function findDocument() {
                     caloriesTotal,
                     proteinTotal
                 };
-                console.log('Sending mealsData:', mealsData);
                 console.log('Totals:', totals);
                 res.status(200).send({ mealsData ,totals});
             }
@@ -74,7 +73,67 @@ async function findDocument() {
             res.status(500).send('Error reading meals');
         }
     });
-
+    app.post('/readloggedtotals', async (req, res) => {
+        console.log('attempting to read logged totals');
+        try {
+            const { user, date } = req.body;
+            console.log('User:', user);
+            console.log('Date:', date);
+            const querySnapshot = await getDocs(query(collection(db, "Users", user, "LoggedDays", date, "meals")));
+            if (querySnapshot.empty) {
+                console.log('No matching documents.');
+                res.status(401).send('No meals found');
+            } else {
+                let carbsTotal = 0;
+                let fatsTotal = 0;
+                let caloriesTotal = 0;
+                let proteinTotal = 0;
+                querySnapshot.forEach((doc) => {
+                    const meal = doc.data();
+                    console.log('Meal found:', meal);
+                    carbsTotal += meal.carbs;
+                    fatsTotal += meal.fats;
+                    caloriesTotal += meal.calories;
+                    proteinTotal += meal.protein;
+                });
+                const totals = {
+                    carbsTotal,
+                    fatsTotal,
+                    caloriesTotal,
+                    proteinTotal
+                };
+                console.log('Totals:', totals);
+                res.status(200).send(totals);
+            }
+        } catch (error) {
+            console.error('Error reading meals:', error.message);
+            res.status(500).send('Error reading meals');
+        }
+    });
+    app.post('/readLoggedDays', async (req, res) => {
+        console.log('attempting to read logged days');
+        try {
+            const { user } = req.body;
+            console.log('User:', user);
+            const querySnapshot = await getDocs(query(collection(db, "Users", user, "LoggedDays")));
+            if (querySnapshot.empty) {
+                console.log('No matching documents.');
+                res.status(401).send('No logged days found');
+            } else {
+                const loggedDays = [];
+                querySnapshot.forEach((doc) => {
+                    const loggedDay = doc.id;
+                    console.log('Logged day found:', loggedDay);
+                    loggedDays.push(loggedDay);
+                });
+                console.log('Sending loggedDays:', loggedDays);
+                res.status(200).send(loggedDays);
+            }
+        } catch (error) {
+            console.error('Error reading logged days:', error.message);
+            res.status(500).send('Error reading logged days');
+        }
+    });
 app.post('/login', async (req, res) => {
     try {
         console.log('attempting login')
