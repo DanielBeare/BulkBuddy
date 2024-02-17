@@ -1,0 +1,28 @@
+{
+    "version": 2,
+    "builds": [
+      {
+        "src": "package.json",
+        "use": "@vercel/node",
+        "config": {
+          "distDir": "dist"
+        }
+      },
+      {
+        "src": "api/FBLM.mjs",
+        "use": "@vercel/node"
+      }
+    ],
+    "routes": [
+      {
+        "src": "/api/(.*)",
+        "dest": "/api/FBLM.mjs"
+      },
+      {
+        "src": "/(.*)",
+        "dest": "/dist/$1",
+        "continue": true
+      }
+    ],
+    "cleanUrls": true
+  }

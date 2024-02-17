@@ -1,4 +1,4 @@
-import { db } from "./src/fireBase/FB.mjs";
+import { db } from "../bulkbuddy/src/fireBase/FB.mjs";
 import { collection, addDoc, getDocs , query, where, doc, getDoc,setDoc, serverTimestamp } from "@firebase/firestore";
 import express from 'express';
 import cors from 'cors';
